@@ -8,6 +8,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 include_directories(.)
 
 add_executable(edusat
-        edusat.cpp
-        options.cpp
+        src/edusat.cpp
+        src/options.cpp
         )
