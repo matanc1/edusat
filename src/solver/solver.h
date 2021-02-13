@@ -9,6 +9,7 @@
 #include <fstream>
 #include <utility>
 #include <vector>
+#include <src/callbacks/CallbackBase.h>
 #include "src/heuristics/var.h"
 #include "src/heuristics/val.h"
 
@@ -46,7 +47,10 @@ class Solver {
 private:
     VarDecisionHeuristic &var;
     ValDecisionHeuristic &val;
-    SolverState _solve();
+    std::vector<Clause> cnf;
+
+    SolverState _solve(Callbacks &cbs);
+    void before_bcp(Callbacks &cbs);
 
 public:
     unsigned int nclauses;
@@ -57,8 +61,7 @@ public:
 
     void read_cnf(std::ifstream &input, bool verbose = false);
 
-    void solve();
-
+    void solve(Callbacks &cbs);
 };
 
 #endif //EDUSAT_SOLVER_H

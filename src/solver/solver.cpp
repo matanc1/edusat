@@ -6,6 +6,7 @@
 #include "solver.h"
 #include <set>
 #include <iostream>
+#include <src/callbacks/CallbackBase.h>
 
 
 Solver::Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val) : var{var}, val{val} {}
@@ -14,18 +15,19 @@ Solver::Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val) : var{var},
 void Solver::read_cnf(std::ifstream &input, bool verbose) {
     dimacs_parser::skip_headers(input);
     std::tie(nvars, nclauses) = dimacs_parser::read_problem_definition(input);
-    std::vector<Clause> clauses = std::move(dimacs_parser::read_clauses(input));
+    cnf = dimacs_parser::read_clauses(input); //This calls a move c'tor!
+
 
     if (verbose) {
         std::cout << "nvars: " << nvars << " nclauses: " << nclauses << std::endl;
         std::cout << "Clauses:" << std::endl;
-        for (auto c : clauses) std::cout << c << std::endl;
+        for (auto c : cnf) std::cout << c << std::endl;
     }
 }
 
 
-void Solver::solve() {
-    SolverState res = _solve();
+void Solver::solve(Callbacks &cbs) {
+    SolverState res = _solve(cbs);
     switch (res) {
         case SolverState::SAT : {
             std::cout << "SAT" << std::endl;
@@ -35,19 +37,24 @@ void Solver::solve() {
             std::cout << "UNSAT" << std::endl;
             break;
         }
-        case SolverState::TIMEOUT : {
-            std::cout << "TIMEOUT" << std::endl;
-            break;
-        }
     }
 }
 
-SolverState Solver::_solve() {
+SolverState Solver::_solve(Callbacks &cbs) {
     SolverState res;
     while (true) {
-
+        before_bcp(cbs);
+        res = BCP();
+        if (res == SolverState::CONFLICT) {
+            backtrack(analyze(cnf[conflict_clause_idx]));
+        } else break;
     }
-    return SolverState::TIMEOUT;
+    res = decide();
+    if (res == SolverState::SAT) return res;
+}
+
+void Solver::before_bcp(Callbacks &cbs) {
+    for (const auto &cb : cbs) cb->before_bcp();
 }
 
 /*

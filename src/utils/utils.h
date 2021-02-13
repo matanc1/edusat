@@ -7,4 +7,6 @@
 
 #include <ctime>
 
-inline double cpuTime();
+inline double cpuTime() {
+    return (double) clock() / CLOCKS_PER_SEC;
+}

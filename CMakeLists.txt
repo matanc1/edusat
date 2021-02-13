@@ -14,7 +14,9 @@ add_executable(edusat
         src/heuristics/val.cpp
         src/utils/definitions.h
         src/parsing/dimacs_parser.cpp
-        src/solver/solver.cpp)
+        src/solver/solver.cpp
+        src/callbacks/TimeoutCallback.cpp
+        src/callbacks/CallbackBase.h)
 
 #add_executable(edustat
 #        src/new/main
