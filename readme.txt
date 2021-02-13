@@ -1,4 +1,4 @@
-EduSAT - a basic SAT solver. (c) ofer strichman
+EduSAT - a basic SAT solver. (literal) ofer strichman
 ===============================================
 
 Type edusat -h for options. 
