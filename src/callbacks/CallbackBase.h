@@ -8,7 +8,9 @@
 
 #include <memory>
 #include <vector>
-#include <src/solver/solver_state.h>
+#include <exception>
+
+class SolverState;
 
 class CallbackBase {
 protected:
@@ -17,9 +19,16 @@ protected:
 public:
     CallbackBase() {}
 
+    //SOLVER CALLBACKS
     virtual void before_bcp() {}
 
-    virtual void after_add_clauses() {}
+
+    //STATE CALLBACKS
+    virtual void after_initialization() {}
+
+    virtual void after_assignment() {}
+
+    virtual void before_add_clause(std::vector<int> clause) {}
 
     void set_state(std::shared_ptr<SolverState> state) {
         this->state = state;
@@ -28,4 +37,18 @@ public:
 
 typedef std::vector<std::shared_ptr<CallbackBase>> Callbacks;
 
+class CancelException : public std::exception {
+private:
+    std::string message;
+
+public:
+    CancelException(std::string message) : message(message) {};
+
+    virtual const char* what() const throw () {
+        return message.c_str();
+    }
+
+};
+
 #endif //EDUSAT_CALLBACK_H
+

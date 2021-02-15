@@ -1,0 +1,8 @@
+c FILE: simple.cnf
+c
+c NOTE: Satisfiable
+c
+p cnf 2 3
+1 0
+2 0
+1 2 0

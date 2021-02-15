@@ -14,8 +14,8 @@ class PrintStateCallback : public CallbackBase {
 public:
     explicit PrintStateCallback() {}
 
-    void after_add_clauses() override {
-        std::cout << "nvars: " << state->nvars << " nclauses: " << state->nclauses << std::endl;
+    void after_initialization() override {
+        std::cout << "nvars: " << state->nvars << " nclauses: " << state->cnf.size() << std::endl;
         std::cout << "Clauses:" << std::endl;
         for (const auto &c : state->cnf) {
             for(const auto &l : c.literals) {
@@ -23,6 +23,7 @@ public:
             }
             std::cout << std::endl;
         }
+        std::cout.flush();
     }
 };
 

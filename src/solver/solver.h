@@ -7,14 +7,11 @@
 
 
 #include <fstream>
-#include <utility>
 #include <vector>
 #include <src/callbacks/CallbackBase.h>
 #include "src/heuristics/var.h"
 #include "src/heuristics/val.h"
-#include "clause.h"
 #include "solver_state.h"
-#include <exception>
 
 
 class Solver {
@@ -24,22 +21,21 @@ private:
     std::shared_ptr<SolverState> state;
     Callbacks cbs;
 
-    SolverStatus _solve();
+    void _solve();
+    SolverStatus BCP();
+    SolverStatus _BCP();
 
     void before_bcp();
 
 public:
-    Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val, Callbacks cbs);
+    Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val, Callbacks solver_cbs, Callbacks state_cbs);
 
     void read_cnf(std::ifstream &input);
 
     void solve();
 
-    void add_all_clauses(std::vector<std::vector<int>> clauses);
+    SolverStatus decide();
 
-    void add_clause(std::vector<int> &clause, int lw, int rw);
-
-    void after_add_clauses();
 };
 
 #endif //EDUSAT_SOLVER_H

@@ -11,7 +11,6 @@
 #include <ostream>
 
 
-typedef std::vector<Lit> Literals;
 
 class Clause {
 

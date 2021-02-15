@@ -19,7 +19,7 @@ inline unsigned int v2l(int i) { // maps a literal as it appears in the cnf to l
     else return i << 1;
 }
 
-inline Var l2v(Lit l) {
+inline Var l2v(Lit l) { // the actual var name. doesn't matter if it's negated or not
     return (l + 1) / 2;
 }
 
@@ -28,6 +28,6 @@ inline Lit negate(Lit l) {
     return l - 1;
 }
 
-inline int l2rl(int l) {
+inline int l2rl(int l) { // the var name + negation sign
     return Neg(l) ? -((l + 1) / 2) : l / 2;
 }

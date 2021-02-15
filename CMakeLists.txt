@@ -18,4 +18,5 @@ add_executable(edusat
         src/callbacks/TimeoutCallback.h
         src/callbacks/CallbackBase.h
         src/solver/solver_state.cpp
-        src/callbacks/PrintStateCallback.h)
+        src/callbacks/PrintStateCallback.h
+        src/callbacks/HandleUnaryClausesCallback.h src/callbacks/RunStatisticsCallback.h)
