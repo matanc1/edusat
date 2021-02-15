@@ -23,7 +23,6 @@ private:
 
     void _solve();
     SolverStatus BCP();
-    SolverStatus _BCP();
 
     void before_bcp();
 

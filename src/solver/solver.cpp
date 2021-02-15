@@ -8,6 +8,7 @@
 #include <memory>
 
 
+
 Solver::Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val, Callbacks solver_cbs, Callbacks state_cbs) :
         var{var}, val{val}, cbs(solver_cbs), state{std::make_shared<SolverState>(state_cbs)} {
     for (auto &c : solver_cbs) c->set_state(state);
@@ -39,10 +40,12 @@ void Solver::_solve() {
     while (true) {
         while (true) {
             res = BCP();
-            if (res == SolverStatus::CONFLICT){}
+            if (res == SolverStatus::CONFLICT) {
 /*
-                backtrack(analyze(cnf[conflicting_clause_idx]));
+                auto dl_to_backtrack = analyze(cnf[conflicting_clause_idx]);
 */
+                state->backtrack(0);
+            }
             else break;
         }
         res = decide();
@@ -50,12 +53,8 @@ void Solver::_solve() {
     }
 }
 
-SolverStatus Solver::BCP(){
-    before_bcp();
-    return _BCP();
-}
 
-SolverStatus Solver::decide(){
+SolverStatus Solver::decide() {
     return SolverStatus::UNDEF;
 }
 
@@ -63,6 +62,8 @@ void Solver::before_bcp() {
     for (const auto &cb : cbs) cb->before_bcp();
 }
 
-SolverStatus Solver::_BCP() {
-    return SolverStatus::UNDEF;
+SolverStatus Solver::BCP() {
+    before_bcp();
+    return state->BCP();
 }
+

@@ -28,6 +28,8 @@ public:
 
     virtual void after_assignment() {}
 
+    virtual void before_backtrack() {}
+
     virtual void before_add_clause(std::vector<int> clause) {}
 
     void set_state(std::shared_ptr<SolverState> state) {
@@ -44,7 +46,7 @@ private:
 public:
     CancelException(std::string message) : message(message) {};
 
-    virtual const char* what() const throw () {
+    virtual const char *what() const throw() {
         return message.c_str();
     }
 

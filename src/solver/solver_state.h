@@ -17,6 +17,7 @@ class SolverState {
     void before_add_clause(std::vector<int> &vector);
     void after_initialization();
     void after_assignment();
+    void before_backtrack();
 
 public:
     std::vector<Clause> cnf;
@@ -27,6 +28,7 @@ public:
     std::vector<Lit> trail; // assignment stack
     unsigned int nclauses;
     unsigned int nvars;
+    unsigned int qhead = 0;
 
     int dl; // current decision level
     Callbacks cbs;
@@ -38,6 +40,9 @@ public:
     void initialize(unsigned int nvars, unsigned int nclauses, std::vector<std::vector<Lit>> clauses);
 
     void assign_literal(Lit l);
+
+    SolverStatus BCP();
+    void backtrack(int k);
 };
 
 
