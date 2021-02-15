@@ -4,91 +4,78 @@
 
 #include "src/parsing/dimacs_parser.h"
 #include "solver.h"
+#include "../callbacks/CallbackBase.h"
 #include <set>
 #include <iostream>
 #include <src/callbacks/CallbackBase.h>
+#include <src/utils/utils.h>
 
 
-Solver::Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val) : var{var}, val{val} {}
-
-
-void Solver::read_cnf(std::ifstream &input, bool verbose) {
-    dimacs_parser::skip_headers(input);
-    std::tie(nvars, nclauses) = dimacs_parser::read_problem_definition(input);
-    cnf = dimacs_parser::read_clauses(input); //This calls a move c'tor!
-
-
-    if (verbose) {
-        std::cout << "nvars: " << nvars << " nclauses: " << nclauses << std::endl;
-        std::cout << "Clauses:" << std::endl;
-        for (auto c : cnf) std::cout << c << std::endl;
-    }
+Solver::Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val, Callbacks cbs) : var{var}, val{val},
+                    cbs(cbs), state(std::make_shared<SolverState>()) {
+    int x = 3;
+    for (auto &c : cbs) c->set_state(state);
 }
 
 
-void Solver::solve(Callbacks &cbs) {
-    SolverState res = _solve(cbs);
+void Solver::read_cnf(std::ifstream &input) {
+    dimacs_parser::skip_headers(input);
+    unsigned int nvars, nclauses;
+    std::tie(nvars, nclauses) = dimacs_parser::read_problem_definition(input);
+    std::vector<std::vector<int>> clauses = dimacs_parser::read_clauses(input); //This calls a move c'tor!
+    state->initialize(nvars, nclauses);
+    add_all_clauses(std::move(clauses));
+}
+
+
+void Solver::solve() {
+    SolverStatus res = _solve();
     switch (res) {
-        case SolverState::SAT : {
+        case SolverStatus::SAT : {
             std::cout << "SAT" << std::endl;
             break;
         }
-        case SolverState::UNSAT : {
+        case SolverStatus::UNSAT : {
             std::cout << "UNSAT" << std::endl;
             break;
         }
     }
 }
 
-SolverState Solver::_solve(Callbacks &cbs) {
-    SolverState res;
+SolverStatus Solver::_solve() {
+    SolverStatus res;
     while (true) {
-        before_bcp(cbs);
-        res = BCP();
-        if (res == SolverState::CONFLICT) {
-            backtrack(analyze(cnf[conflict_clause_idx]));
-        } else break;
+        before_bcp();
     }
-    res = decide();
-    if (res == SolverState::SAT) return res;
+    return SolverStatus::SAT;
 }
 
-void Solver::before_bcp(Callbacks &cbs) {
+void Solver::before_bcp() {
     for (const auto &cb : cbs) cb->before_bcp();
 }
 
+void Solver::add_all_clauses(std::vector<std::vector<int>> clauses) {
+    for (auto &c: clauses) {
+        state->add_clause(c, 0, static_cast<int>(c.size()) - 1);
+    }
+    after_add_clauses();
+
 /*
-SolverState Solver::_solve() {
-    SolverState res;
-    while (true) {
-        before_bcp(); //TODO: Here we'll check the time and throw an exception if we timeout
-        while (true) {
-            res = BCP();
-            if (res == SolverState::UNSAT) return res;
-            if (res == SolverState::CONFLICT) {
-                int dl = analyze(cnf[conflicting_clause_idx]);
-                after_analyze();
-                backtrack(dl);
-                after_backtrack();
-            } else break;
-
-            res = decide();
-            after_decide();
-            if (res == SolverState::SAT) return res;
+        if (c.size() == 1) {
+            Lit l = c.literals[0];
+            if (state[l2v(l)] == VarState::V_UNASSIGNED) add_unary_clause(c);
+            else {
+                if (Neg(l) != (state[l2v(l)] == VarState::V_FALSE)){
+                    throw std::runtime_error("UNSAT - Conflicting Unaries for var: " + l2v(l))
+                }
+            }
+        } else {
         }
-
-    }
-}
-
-
-int Solver::analyze(const Clause conflicting) {
-
-}
-
 */
-std::ostream &operator<<(std::ostream &out, const Clause &clause) {
-    for (auto &literal: clause.clause) {
-        out << literal << ' ';
-    }
-    return out;
+
 }
+
+void Solver::after_add_clauses() {
+    for (const auto &cb : cbs) cb->after_add_clauses();
+}
+

@@ -12,15 +12,22 @@
 #include "CallbackBase.h"
 
 class TimeoutCallback : public CallbackBase {
-    int limit;
+    int seconds;
     double start_time;
 
 public:
-    explicit TimeoutCallback(int limit) : limit(limit), start_time(cpuTime()) {
-        assert(limit > 0);
+    explicit TimeoutCallback(int seconds) : seconds(seconds), start_time(cpuTime()) {
+        assert(seconds > 0);
     }
 
-    void before_bcp() override;
+    void before_bcp() {
+        std::ostringstream oss;
+        oss << "Timeout of **" << seconds << "** seconds exceeded";
+
+        if (cpuTime() - start_time > seconds) {
+            throw std::runtime_error(oss.str());
+        }
+    }
 };
 
 

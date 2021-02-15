@@ -14,7 +14,7 @@ namespace dimacs_parser {
 
     std::tuple<int, int> read_problem_definition(std::ifstream &input);
 
-    std::vector<Clause> read_clauses(std::ifstream &input);
+    std::vector<std::vector<int>> read_clauses(std::ifstream &input);
 }
 
 

@@ -4,11 +4,6 @@
 
 
 
-/*
-#include "heuristics/var.h"
-#include "heuristics/val.h"
-#include "solver/solver.h"
-*/
 #include <iostream>
 #include <fstream>
 #include "src/heuristics/var.h"
@@ -16,6 +11,7 @@
 #include "src/solver/solver.h"
 #include "src/callbacks/TimeoutCallback.h"
 #include <memory>
+#include "src/callbacks/PrintStateCallback.h"
 
 int main(int argc, char **argv) {
 
@@ -24,16 +20,19 @@ int main(int argc, char **argv) {
     VarDecisionHeuristic &var = lr;
     ValDecisionHeuristic &val = lit_score;
 
-    TimeoutCallback timeout_callback{2};
+
+    std::shared_ptr<TimeoutCallback> timeout_callback = std::make_shared<TimeoutCallback>(2);
+    std::shared_ptr<PrintStateCallback> print_state_callback = std::make_shared<PrintStateCallback>();
+
 
     Callbacks callbacks;
-    callbacks.push_back(std::make_unique<TimeoutCallback>(timeout_callback));
-
+    callbacks.push_back(timeout_callback);
+    callbacks.push_back(print_state_callback);
 
     std::ifstream input(argv[argc - 1]);
-    Solver s(var, val);
+    Solver s(var, val, callbacks);
     s.read_cnf(input);
-    s.solve(callbacks);
+    s.solve();
     std::cout << "DONE" << std::endl;
 }
 

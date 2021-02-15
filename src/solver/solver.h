@@ -12,56 +12,34 @@
 #include <src/callbacks/CallbackBase.h>
 #include "src/heuristics/var.h"
 #include "src/heuristics/val.h"
-
-
-enum class SolverState {
-    UNSAT,
-    SAT,
-    CONFLICT,
-    UNDEF,
-    TIMEOUT
-};
-
-
-class Clause {
-    typedef std::vector<Lit> clause_t;
-
-    clause_t clause;
-    int lw, rw; //watches;
-
-public:
-    Clause() = default;
-
-    Clause(clause_t c) : clause{std::move(c)} {
-        lw = 0;
-        rw = 1;
-        //TODO: Set LW, RW
-    }
-
-
-    friend std::ostream &operator<<(std::ostream &out, const Clause &c);
-};
+#include "clause.h"
+#include "solver_state.h"
+#include <exception>
 
 
 class Solver {
 private:
     VarDecisionHeuristic &var;
     ValDecisionHeuristic &val;
-    std::vector<Clause> cnf;
+    std::shared_ptr<SolverState> state;
+    Callbacks cbs;
 
-    SolverState _solve(Callbacks &cbs);
-    void before_bcp(Callbacks &cbs);
+    SolverStatus _solve();
+
+    void before_bcp();
 
 public:
-    unsigned int nclauses;
-    unsigned int nvars;
+    Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val, Callbacks cbs);
 
+    void read_cnf(std::ifstream &input);
 
-    Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val);
+    void solve();
 
-    void read_cnf(std::ifstream &input, bool verbose = false);
+    void add_all_clauses(std::vector<std::vector<int>> clauses);
 
-    void solve(Callbacks &cbs);
+    void add_clause(std::vector<int> &clause, int lw, int rw);
+
+    void after_add_clauses();
 };
 
 #endif //EDUSAT_SOLVER_H
