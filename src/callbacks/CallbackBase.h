@@ -23,13 +23,14 @@ public:
 
     //SOLVER CALLBACKS
     virtual void before_bcp() {}
+    virtual void after_bcp() {}
 
 
     //STATE CALLBACKS
     virtual void before_initialize_state() {}
     virtual void after_initialize_state() {}
 
-    virtual void before_initialize_clauses() {}
+    virtual void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {}
     virtual void after_initialize_clauses() {}
 
     virtual void before_assignment(Lit &l) {}

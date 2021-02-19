@@ -10,12 +10,11 @@
 
 
 Solver::Solver(std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val,
-               Callbacks solver_cbs, Callbacks state_cbs) :
-        var{var}, val{val}, cbs(solver_cbs), state{std::make_shared<SolverState>(state_cbs)} {
+               Callbacks cbs) :
+        var{var}, val{val}, state{std::make_shared<SolverState>(cbs)} {
     state->add_cb(var); var->set_state(state);
     state->add_cb(val); val->set_state(state);
-    for (auto &c : solver_cbs) c->set_state(state);
-    for (auto &c : state_cbs) c->set_state(state);
+    for (auto &c : cbs) c->set_state(state);
 }
 
 
@@ -39,7 +38,7 @@ void Solver::_solve() {
     SolverStatus res;
     while (true) {
         while (true) {
-            res = BCP();
+            res = state->BCP();
             if (res == SolverStatus::CONFLICT) {
                 auto dl_to_backtrack = state->analyze();
                 state->backtrack(dl_to_backtrack);
@@ -57,14 +56,5 @@ SolverStatus Solver::decide() {
     Lit l = val->choose(v);
     state->decide(l);
     return SolverStatus::UNDEF;
-}
-
-void Solver::before_bcp() {
-    for (const auto &cb : cbs) cb->before_bcp();
-}
-
-SolverStatus Solver::BCP() {
-    before_bcp();
-    return state->BCP();
 }
 

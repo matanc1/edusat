@@ -19,7 +19,7 @@ Var MiniSAT::choose() {
     throw std::runtime_error("ERROR - should've found an unassigned variable");
 }
 
-void MiniSAT::before_initialize_clauses() {
+void MiniSAT::before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {
 //    for(auto i=1; i<=state->nvars; i++) score2vars[0].insert(i);
     activity.resize(state->nvars + 1);
 }
@@ -74,5 +74,5 @@ void MiniSAT::rescale_scores() {
 }
 
 void MiniSAT::after_learn_clause(std::vector<Lit> &lits) {
-    var_inc *= SPEEDUP_FACTOR;
+    var_inc *= 1 / SPEEDUP_FACTOR;
 }

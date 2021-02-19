@@ -98,10 +98,16 @@ public:
 
     void before_initialize_state();
 
-    void before_initialize_clauses();
+    void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses);
 
     void after_initialize_state();
 
+    SolverStatus _BCP();
+
+    void before_bcp();
+    void after_bcp();
+
+    int max_dl;
 };
 
 

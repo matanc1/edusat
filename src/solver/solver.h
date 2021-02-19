@@ -19,15 +19,11 @@ private:
     std::shared_ptr<VarDecisionHeuristic> var;
     std::shared_ptr<ValDecisionHeuristic> val;
     std::shared_ptr<SolverState> state;
-    Callbacks cbs;
 
     void _solve();
-    SolverStatus BCP();
-
-    void before_bcp();
 
 public:
-    Solver(std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val, Callbacks solver_cbs, Callbacks state_cbs);
+    Solver(std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val, Callbacks cbs);
 
     void read_cnf(std::ifstream &input);
 
@@ -35,7 +31,6 @@ public:
 
     SolverStatus decide();
 
-    void before_decide();
 };
 
 #endif //EDUSAT_SOLVER_H

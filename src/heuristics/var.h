@@ -24,14 +24,14 @@ class MiniSAT : public VarDecisionHeuristic {
     double var_inc = 1.0;	// current increment of var score (it increases over time)
     const double RESCALE_THRESHOLD = 1e6;
     const double RESCALE_FACTOR = 1e3;
-    const double SPEEDUP_FACTOR = 1.01;
+    const double SPEEDUP_FACTOR = 0.99;
 
     void rescale_scores();
 
 public:
     Var choose() override;
 
-    void before_initialize_clauses() override;
+    void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) override;
 
     void before_add_clause(std::vector<Lit> &lits) override;
     void after_learn_clause(std::vector<Lit> &lits) override;

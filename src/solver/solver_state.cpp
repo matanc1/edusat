@@ -32,7 +32,7 @@ void SolverState::initialize(unsigned int nvars, unsigned int nclauses, std::vec
     before_initialize_state();
     this->initialize_state(nvars, nclauses);
     after_initialize_state();
-    before_initialize_clauses();
+    before_initialize_clauses(clauses);
     this->initialize_clauses(clauses);
     after_initialize_clauses();
 }
@@ -41,14 +41,16 @@ void SolverState::initialize_state(unsigned int nvars, unsigned int nclauses) {
     this->nvars = nvars;
     this->nclauses = nclauses;
     dl = 0;
+    max_dl = 0;
     conflicting_clause_idx = -1;
     var_state.resize(nvars + 1, VarState::V_UNASSIGNED);
     dlevel.resize(nvars + 1);
     antecedent.resize(nvars + 1, -1);
-    marked.resize(nvars+1);
+    marked.resize(nvars + 1);
 
     auto nlits = 2 * nvars;
     watches.resize(nlits + 1);
+    separators.push_back(0);
 }
 
 void SolverState::initialize_clauses(std::vector<std::vector<Lit>> clauses) {
@@ -88,6 +90,13 @@ void SolverState::after_assignment(Lit &l) {
 }
 
 SolverStatus SolverState::BCP() {
+    before_bcp();
+    auto res = _BCP();
+    after_bcp();
+    return res;
+}
+
+SolverStatus SolverState::_BCP() {
     while (qhead < trail.size()) {
         Lit NegatedLit = negate(trail[qhead++]);
         assert(lit_state(NegatedLit) == LitState::L_UNSAT);
@@ -282,6 +291,11 @@ void SolverState::before_assignment(Lit &l) {
 void SolverState::decide(Lit l) {
     before_decide(l);
     dl++;
+    if (dl > max_dl) {
+        max_dl = dl;
+        separators.push_back(trail.size());
+    }
+    else separators[dl] = trail.size();
     assign_literal(l);
     after_decide(l);
 }
@@ -333,7 +347,7 @@ int SolverState::analyze() {
     Lit Negated_u = negate(u);
     new_literals.push_back(Negated_u);
     assigned_lit = Negated_u;
-    add_learned_clause(new_literals, watch_lit, new_literals.size()-1);
+    add_learned_clause(new_literals, watch_lit, new_literals.size() - 1);
 
     return bktrk;
 }
@@ -348,11 +362,13 @@ void SolverState::after_learn_clause(std::vector<Lit> &learned) {
 
 void SolverState::_add_unary_clause(std::vector<int> &literals) {
     Lit l = literals.at(0);
-    if (var_state.at(l2v(l)) == VarState::V_UNASSIGNED) {
-        unaries.push_back(l);
-        assign_literal(l);
-    } else if (Neg(l) != (var_state.at(l2v(l)) == VarState::V_FALSE))
+    if ((Neg(l) == false) and (var_state.at(l2v(l)) == VarState::V_FALSE) and (dl == 0))
         throw std::runtime_error("UNSAT - Conflicting unaries for " + std::to_string(l2v(l)));
+
+    unaries.push_back(l);
+    if (var_state.at(l2v(l)) == VarState::V_UNASSIGNED) {
+        assign_literal(l);
+    }
 }
 
 void SolverState::add_learned_clause(Literals &literals, int lw, int rw) {
@@ -365,8 +381,8 @@ void SolverState::before_initialize_state() {
     for (const auto &cb : cbs) cb->before_initialize_state();
 }
 
-void SolverState::before_initialize_clauses() {
-    for (const auto &cb : cbs) cb->before_initialize_clauses();
+void SolverState::before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {
+    for (const auto &cb : cbs) cb->before_initialize_clauses(clauses);
 }
 
 void SolverState::after_initialize_state() {
@@ -379,5 +395,13 @@ void SolverState::before_decide(Lit &l) {
 
 void SolverState::after_decide(Lit &l) {
     for (const auto &cb : cbs) cb->after_decide(l);
+}
+
+void SolverState::before_bcp() {
+    for (const auto &cb : cbs) cb->before_bcp();
+}
+
+void SolverState::after_bcp() {
+    for (const auto &cb : cbs) cb->after_bcp();
 }
 
