@@ -6,11 +6,14 @@
 #include <iostream>
 #include <src/utils/utils.h>
 #include <memory>
+#include "solver.h"
 
 
-
-Solver::Solver(VarDecisionHeuristic &var, ValDecisionHeuristic &val, Callbacks solver_cbs, Callbacks state_cbs) :
+Solver::Solver(std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val,
+               Callbacks solver_cbs, Callbacks state_cbs) :
         var{var}, val{val}, cbs(solver_cbs), state{std::make_shared<SolverState>(state_cbs)} {
+    state->add_cb(var); var->set_state(state);
+    state->add_cb(val); val->set_state(state);
     for (auto &c : solver_cbs) c->set_state(state);
     for (auto &c : state_cbs) c->set_state(state);
 }
@@ -27,12 +30,9 @@ void Solver::read_cnf(std::ifstream &input) {
 
 
 void Solver::solve() {
-    try {
-        _solve();
-    }
-    catch (const CancelException &e) {
-        std::cout << e.what();
-    }
+    _solve();
+    state->validate_assignment();
+    state->write_assignment("output.txt");
 }
 
 void Solver::_solve() {
@@ -41,20 +41,21 @@ void Solver::_solve() {
         while (true) {
             res = BCP();
             if (res == SolverStatus::CONFLICT) {
-/*
-                auto dl_to_backtrack = analyze(cnf[conflicting_clause_idx]);
-*/
-                state->backtrack(0);
-            }
-            else break;
+                auto dl_to_backtrack = state->analyze();
+                state->backtrack(dl_to_backtrack);
+            } else break;
         }
         res = decide();
-//        if (res == SolverStatus::SAT) return res;
+        if (res == SolverStatus::SAT) return;
     }
 }
 
 
 SolverStatus Solver::decide() {
+    if (state->all_assigned()) return SolverStatus::SAT;
+    Var v = var->choose();
+    Lit l = val->choose(v);
+    state->decide(l);
     return SolverStatus::UNDEF;
 }
 

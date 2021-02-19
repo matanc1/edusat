@@ -1,0 +1,8 @@
+c Test watch list grows and updates as it should
+c
+c NOTE: Satisfiable
+c
+p cnf 3 3
+1 0
+2 -1 0
+3 -1 2 0

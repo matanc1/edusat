@@ -9,6 +9,8 @@
 #include <memory>
 #include <vector>
 #include <exception>
+#include "src/utils/definitions.h"
+#include <iostream>
 
 class SolverState;
 
@@ -24,21 +26,39 @@ public:
 
 
     //STATE CALLBACKS
-    virtual void after_initialization() {}
+    virtual void before_initialize_state() {}
+    virtual void after_initialize_state() {}
 
-    virtual void after_assignment() {}
+    virtual void before_initialize_clauses() {}
+    virtual void after_initialize_clauses() {}
+
+    virtual void before_assignment(Lit &l) {}
+
+    virtual void after_assignment(Lit &l) {}
 
     virtual void before_backtrack() {}
 
-    virtual void before_add_clause(std::vector<int> clause) {}
+    virtual void before_add_clause(std::vector<int> &clause) {}
+
+    virtual void before_learn_clause(std::vector<Lit> &lits) {}
+
+    virtual void after_learn_clause(std::vector<Lit> &lits) {}
+
+    virtual void before_decide(Lit &l) {}
+    virtual void after_decide(Lit &l) {}
 
     void set_state(std::shared_ptr<SolverState> state) {
         this->state = state;
+    }
+
+    void print_spaces(int n=2) {
+        for (int i = 0; i<n; i++) std::cout << std::endl;
     }
 };
 
 typedef std::vector<std::shared_ptr<CallbackBase>> Callbacks;
 
+/*
 class CancelException : public std::exception {
 private:
     std::string message;
@@ -51,6 +71,7 @@ public:
     }
 
 };
+*/
 
 #endif //EDUSAT_CALLBACK_H
 

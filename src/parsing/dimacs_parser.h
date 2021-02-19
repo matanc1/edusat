@@ -7,7 +7,6 @@
 
 #include <fstream>
 #include <vector>
-#include <src/solver/solver.h>
 
 namespace dimacs_parser {
     void skip_headers(std::ifstream &input);

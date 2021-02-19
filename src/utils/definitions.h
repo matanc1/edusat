@@ -5,6 +5,7 @@
 #ifndef EDUSAT_DEFINITIONS_H
 #define EDUSAT_DEFINITIONS_H
 
+
 #include <vector>
 
 typedef int Var;

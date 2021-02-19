@@ -48,6 +48,8 @@ public:
     size_t size() { return literals.size(); }
 
     void reset() { literals.clear(); }
+
+    void switch_watches(bool is_left_watch, int loc);
 };
 
 #endif //EDUSAT_CLAUSE_H
