@@ -10,7 +10,7 @@
 #include <vector>
 #include <tuple>
 #include <set>
-#include <src/solver/SatSolverException.h>
+#include <src/solver/exceptions.h>
 
 using namespace std;
 

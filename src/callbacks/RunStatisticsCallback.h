@@ -23,7 +23,7 @@ public:
         num_decisions++;
     }
 
-    void before_backtrack() override {
+    void before_backtrack(int k) override {
         num_backtracks++;
     }
 

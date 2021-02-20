@@ -39,7 +39,7 @@ public:
 
     virtual void after_assignment(Lit &l) {}
 
-    virtual void before_backtrack() {}
+    virtual void before_backtrack(int k) {}
 
     virtual void before_add_clause(std::vector<int> &clause) {}
 

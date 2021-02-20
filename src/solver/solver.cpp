@@ -7,7 +7,7 @@
 #include <src/utils/utils.h>
 #include <memory>
 #include "solver.h"
-#include "SatSolverException.h"
+#include "exceptions.h"
 
 
 Solver::Solver(std::string filename, std::shared_ptr<VarDecisionHeuristic> var,

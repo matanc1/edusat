@@ -17,7 +17,7 @@ set(myprogSRCS
         src/solver/clause.cpp
         src/callbacks/RunStatisticsCallback.h
         src/callbacks/LocalRestart.h
-        src/solver/SatSolverException.h
+        src/solver/exceptions.h
         )
 
 #set(CMAKE_SYSTEM_NAME Windows)

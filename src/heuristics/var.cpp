@@ -61,8 +61,6 @@ void MiniSAT::update_var_score(Var &v) {
 }
 
 void MiniSAT::rescale_scores() {
-    std::cout << "Rescale" << std::endl;
-
     for (unsigned int i = 1; i <= state->nvars; i++)
         activity[i] /= RESCALE_FACTOR;
 

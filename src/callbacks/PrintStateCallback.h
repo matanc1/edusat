@@ -30,7 +30,7 @@ public:
         std::cout << "DECIDED:  " << l2rl(l) << ":" << l << std::endl;
     }
 
-    void before_backtrack() override {
+    void before_backtrack(int k) override {
         std::cout << "BEFORE BACKTRACK" << std::endl;
     }
 

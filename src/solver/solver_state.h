@@ -27,7 +27,7 @@ class SolverState {
 
     void before_decide(Lit &l);
     void after_decide(Lit &l);
-    void before_backtrack();
+    void before_backtrack(int k);
     void before_learn_clause(std::vector<Lit> &learned);
     void after_learn_clause(std::vector<Lit> &learned);
 
@@ -114,6 +114,10 @@ public:
     bool all_lits_assigned(Clause &clause);
 
     void add_output(std::map<std::string, std::string> &output);
+
+    void reset();
+
+    void unassign_var(Var v);
 };
 
 

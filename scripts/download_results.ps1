@@ -1,4 +1,4 @@
-﻿$studentid="matancohen"
+﻿$studentid="matancohen-testgenerated"
 
 $DestinationBasePath="c:\trial\results"
 $Destination="$($DestinationBasePath)\$($studentid)"
@@ -17,7 +17,7 @@ foreach($output in $outputs)
         $resultname= $output.Name.Split("/")[-3]
         if (!(test-path "$($Destination)\$($resultname)")) {
             write-Host $($output.Name)
-            Get-AzStorageBlobContent -Container tasks -Context $storageAccount.Context -Blob "$($output.Name)" -Destination "$($Destination)\$($resultname)"
+            Get-AzStorageBlobContent -Container tasks -Context $storageAccount.Context -Blob "$($output.Name)" -Destination "$($Destination)\$($resultname).txt"
         }
     }    
 }

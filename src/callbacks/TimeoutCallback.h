@@ -9,7 +9,7 @@
 #include <cassert>
 #include "src/utils/utils.h"
 #include <sstream>
-#include <src/solver/SatSolverException.h>
+#include <src/solver/exceptions.h>
 #include "CallbackBase.h"
 
 class TimeoutCallback : public CallbackBase {

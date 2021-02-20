@@ -4,7 +4,7 @@
 
 #include "solver_state.h"
 #include "src/utils/utils.h"
-#include "SatSolverException.h"
+#include "exceptions.h"
 #include <string>
 #include <fstream>
 #include <cassert>
@@ -41,10 +41,7 @@ void SolverState::initialize(unsigned int nvars, unsigned int nclauses, std::vec
 void SolverState::initialize_state(unsigned int nvars, unsigned int nclauses) {
     this->nvars = nvars;
     this->nclauses = nclauses;
-    dl = 0;
-    max_dl = 0;
     num_assigned = 0;
-    conflicting_clause_idx = -1;
     var_state.resize(nvars + 1, VarState::V_UNASSIGNED);
     dlevel.resize(nvars + 1);
     antecedent.resize(nvars + 1, -1);
@@ -52,7 +49,8 @@ void SolverState::initialize_state(unsigned int nvars, unsigned int nclauses) {
 
     auto nlits = 2 * nvars;
     watches.resize(nlits + 1);
-    separators.push_back(0);
+
+    reset();
 }
 
 void SolverState::initialize_clauses(std::vector<std::vector<Lit>> clauses) {
@@ -74,6 +72,13 @@ void SolverState::assign_literal(Lit l) {
     before_assignment(l);
     _assign_literal(l);
     after_assignment(l);
+}
+
+
+void SolverState::unassign_var(Var v){
+    var_state[v] = VarState::V_UNASSIGNED;
+    num_assigned--;
+    dlevel[v] = 0;
 }
 
 void SolverState::_assign_literal(Lit l) {
@@ -170,13 +175,18 @@ SolverStatus SolverState::_BCP() {
     return SolverStatus::UNDEF;
 }
 
-void SolverState::before_backtrack() {
-    for (const auto &cb : cbs) cb->before_backtrack();
+void SolverState::before_backtrack(int k) {
+    for (const auto &cb : cbs) cb->before_backtrack(k);
 }
 
 void SolverState::backtrack(int k) {
-    before_backtrack();
-    _backtrack(k);
+    try {
+        before_backtrack(k);
+        _backtrack(k);
+    }
+    catch(SkipException &se){
+        return;
+    }
 }
 
 void SolverState::_backtrack(int dl_backtrack) {
@@ -202,8 +212,7 @@ void SolverState::unassign_vars_in_trail_from_dl(int dl_to_backtrack) {
         if (dlevel[v] == 0) continue;
 
         // we need the condition because of learnt unary clauses. In that case we enforce an assignment with dlevel = 0.
-        var_state[v] = VarState::V_UNASSIGNED;
-        num_assigned--;
+        unassign_var(v);
         //if (VarDecHeuristic == VAR_DEC_HEURISTIC::MINISAT) m_curr_activity = max(m_curr_activity, m_activity[v]);
     }
 }
@@ -435,5 +444,12 @@ bool SolverState::all_lits_assigned(Clause &clause) {
 
 void SolverState::add_output(std::map<std::string, std::string> &output){
     for (const auto &cb : cbs) cb->add_output(output);
+}
+
+void SolverState::reset() {
+    dl = 0;
+    max_dl = 0;
+    conflicting_clause_idx = -1;
+    separators.push_back(0); // we want separators[1] to match dl=1. separators[0] is not used.
 }
 
