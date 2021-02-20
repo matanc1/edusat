@@ -9,16 +9,19 @@
 #include "solver.h"
 
 
-Solver::Solver(std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val,
+Solver::Solver(std::string filename, std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val,
                Callbacks cbs) :
-        var{var}, val{val}, state{std::make_shared<SolverState>(cbs)} {
-    state->add_cb(var); var->set_state(state);
-    state->add_cb(val); val->set_state(state);
+        filename(filename), var{var}, val{val}, state{std::make_shared<SolverState>(cbs)} {
+    state->add_cb(var);
+    var->set_state(state);
+    state->add_cb(val);
+    val->set_state(state);
     for (auto &c : cbs) c->set_state(state);
 }
 
 
-void Solver::read_cnf(std::ifstream &input) {
+void Solver::read_cnf() {
+    std::ifstream input(filename);
     dimacs_parser::skip_headers(input);
     unsigned int nvars, nclauses;
     std::tie(nvars, nclauses) = dimacs_parser::read_problem_definition(input);
@@ -29,23 +32,31 @@ void Solver::read_cnf(std::ifstream &input) {
 
 
 void Solver::solve() {
-    _solve();
-    state->validate_assignment();
-    state->write_assignment("output.txt");
+    std::map<std::string, std::string> output;
+    output["filename"] = filename;
+    auto result = _solve();
+    output["status"] = result == SolverStatus::SAT ? "SAT" : "UNSAT";
+    if (result == SolverStatus::SAT) {
+        state->validate_assignment();
+        state->write_assignment("output.txt");
+    }
+    state->add_output(output);
+    write_output(output);
 }
 
-void Solver::_solve() {
+SolverStatus Solver::_solve() {
     SolverStatus res;
     while (true) {
         while (true) {
             res = state->BCP();
+            if (res == SolverStatus::UNSAT) return res;
             if (res == SolverStatus::CONFLICT) {
                 auto dl_to_backtrack = state->analyze();
                 state->backtrack(dl_to_backtrack);
             } else break;
         }
         res = decide();
-        if (res == SolverStatus::SAT) return;
+        if (res == SolverStatus::SAT) return res;
     }
 }
 
@@ -56,5 +67,14 @@ SolverStatus Solver::decide() {
     Lit l = val->choose(v);
     state->decide(l);
     return SolverStatus::UNDEF;
+}
+
+void Solver::write_output(std::map<std::string, std::string> &outputs) {
+    std::ofstream out;
+    out.open("statistics.txt");
+    for (auto &[key, value] : outputs ) {
+        out << key << ":" << value << std::endl;
+    }
+    out.close();
 }
 

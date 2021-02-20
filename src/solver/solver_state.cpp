@@ -42,6 +42,7 @@ void SolverState::initialize_state(unsigned int nvars, unsigned int nclauses) {
     this->nclauses = nclauses;
     dl = 0;
     max_dl = 0;
+    num_assigned = 0;
     conflicting_clause_idx = -1;
     var_state.resize(nvars + 1, VarState::V_UNASSIGNED);
     dlevel.resize(nvars + 1);
@@ -133,7 +134,7 @@ SolverStatus SolverState::_BCP() {
                     break;
                 }
                 case ClauseState::C_UNSAT: { // conflict
-                    if (dl == 0) throw std::runtime_error("Unsat clause at DL=0");
+                    if (dl == 0) return SolverStatus::UNSAT;
                     conflicting_clause_idx = *clause_idx_it;
                     int dist = distance(clause_idx_it, watches[NegatedLit].rend()) - 1; // # of entries in watches[NegatedLit] that were not yet processed when we hit this conflict.
                     // Copying the remaining watched clauses:
@@ -257,6 +258,7 @@ LitState SolverState::lit_state(Lit &l) {
     else return LitState::L_UNSAT; //otherwise, unsat
 }
 
+//TODO: move to solver
 void SolverState::write_assignment(std::string file_name) {
     std::ofstream out;
     out.open(file_name);
@@ -266,6 +268,7 @@ void SolverState::write_assignment(std::string file_name) {
         char sign = (var == VarState::V_FALSE) ? -1 : var == VarState::V_TRUE ? 1 : 0;
         out << sign * i << " " << std::endl;
     }
+    out.close();
 }
 
 int SolverState::next_not_false_index(Literals &literals, Lit &other_watch) {
@@ -423,5 +426,9 @@ bool SolverState::all_lits_assigned(Clause &clause) {
         }
     }
     return all_assigned;
+}
+
+void SolverState::add_output(std::map<std::string, std::string> &output){
+    for (const auto &cb : cbs) cb->add_output(output);
 }
 

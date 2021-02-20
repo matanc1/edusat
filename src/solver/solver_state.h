@@ -112,6 +112,8 @@ public:
     bool is_clause_sat(Clause &clause);
 
     bool all_lits_assigned(Clause &clause);
+
+    void add_output(std::map<std::string, std::string> &output);
 };
 
 

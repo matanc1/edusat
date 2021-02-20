@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(edusat)
 
+
 set(CMAKE_CXX_STANDARD 17)
 set(myprogSRCS
         src/main.cpp
@@ -16,11 +17,12 @@ set(myprogSRCS
         src/solver/clause.cpp
         src/callbacks/RunStatisticsCallback.h
         )
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
-#set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
-#set(CMAKE_BUILD_TYPE DEBUG)
+
+set(CMAKE_SYSTEM_NAME Windows)
+set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 include_directories(.)
 
-add_executable(edusat_exe ${myprogSRCS})
-add_library(edusat_lib ${myprogSRCS})
+add_executable(edusat ${myprogSRCS})

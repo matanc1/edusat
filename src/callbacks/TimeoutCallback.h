@@ -28,6 +28,11 @@ public:
             throw std::runtime_error(oss.str());
         }
     }
+
+    void add_output(std::map<std::string, std::string> &output) override {
+        output["timeout"] = std::to_string(seconds);
+        output["runtime"] = std::to_string(cpuTime() - start_time);
+    }
 };
 
 

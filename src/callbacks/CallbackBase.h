@@ -11,6 +11,8 @@
 #include <exception>
 #include "src/utils/definitions.h"
 #include <iostream>
+#include <string>
+#include <map>
 
 class SolverState;
 
@@ -47,6 +49,7 @@ public:
 
     virtual void before_decide(Lit &l) {}
     virtual void after_decide(Lit &l) {}
+    virtual void add_output(std::map<std::string, std::string> &output) {}
 
     void set_state(std::shared_ptr<SolverState> state) {
         this->state = state;
