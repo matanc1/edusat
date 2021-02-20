@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <tuple>
+#include <set>
 
 using namespace std;
 
@@ -36,22 +37,21 @@ tuple<int, int> dimacs_parser::read_problem_definition(ifstream &input) {
 
 vector<int> create_clause(std::string str) {
     int t;
-    vector<int> terms;
+    set<int> terms;
     stringstream ss(str);
 
     while (ss >> t) {
-        if (t != 0) terms.push_back(t);
+        if (t != 0) terms.insert(t);
         else if (terms.size() == 0) throw std::invalid_argument("A clause can't be empty.");
     }
 
-    return terms;
+    return vector(terms.begin(), terms.end());
 }
 
 std::vector<std::vector<int>> dimacs_parser::read_clauses(ifstream &input) {
     string line;
     vector<string> lines;
     vector<vector<int>> clauses;
-    vector<vector<int>> unaries;
 
     while (getline(input, line)) lines.push_back(std::move(line));
     for (auto &line : lines) {

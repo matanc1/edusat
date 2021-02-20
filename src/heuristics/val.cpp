@@ -21,7 +21,3 @@ void LitScore::after_initialize_state() {
 void LitScore::before_add_clause(std::vector<Lit> &lits) {
     for (auto &lit : lits) lit_score[lit]++;
 }
-
-void LitScore::before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {
-    lit_score.resize(state->nvars + 1);
-}

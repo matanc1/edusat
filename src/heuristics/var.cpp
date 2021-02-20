@@ -32,7 +32,6 @@ void MiniSAT::before_add_clause(std::vector<Lit> &lits) {
 }
 
 void MiniSAT::update_var_score(Var &v) {
-    double new_score;
     double score = activity[v];
 
     if (score > 0) {
@@ -40,16 +39,15 @@ void MiniSAT::update_var_score(Var &v) {
         score2vars[score].erase(v);
         if (score2vars[score].empty()) score2vars.erase(score);
     }
-    new_score = score + var_inc;
-    activity[v] = new_score;
+    activity[v] = score + var_inc;;
 
     // Rescaling, to avoid overflows;
-    if (new_score > RESCALE_THRESHOLD) rescale_scores();
+    if (activity[v] > RESCALE_THRESHOLD) rescale_scores();
 
-    if (score2vars.find(new_score) != score2vars.end())
-        score2vars[new_score].insert(v);
+    if (score2vars.find(activity[v]) != score2vars.end())
+        score2vars[activity[v]].insert(v);
     else
-        score2vars[new_score] = std::unordered_set<int>({v});
+        score2vars[activity[v]] = std::unordered_set<int>({v});
 }
 
 void MiniSAT::rescale_scores() {

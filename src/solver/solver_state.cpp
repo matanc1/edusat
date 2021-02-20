@@ -105,7 +105,7 @@ SolverStatus SolverState::_BCP() {
                                  1; // Since we are traversing the watch_list backwards, this index goes down.
         new_watch_list.resize(watches[NegatedLit].size());
         for (auto clause_idx_it = watches[NegatedLit].rbegin();
-             clause_idx_it != watches[NegatedLit].rend() && conflicting_clause_idx < 0; ++clause_idx_it) {
+            clause_idx_it != watches[NegatedLit].rend() && conflicting_clause_idx < 0; ++clause_idx_it) {
             Clause &c = cnf[*clause_idx_it];
             Lit l_watch = c.get_lw_lit(),
                     r_watch = c.get_rw_lit();
@@ -135,8 +135,11 @@ SolverStatus SolverState::_BCP() {
                 case ClauseState::C_UNSAT: { // conflict
                     if (dl == 0) throw std::runtime_error("Unsat clause at DL=0");
                     conflicting_clause_idx = *clause_idx_it;
-                    std::copy_backward(watches[NegatedLit].rend(), clause_idx_it, new_watch_list.end());
-                    //TODO: TEST
+                    int dist = distance(clause_idx_it, watches[NegatedLit].rend()) - 1; // # of entries in watches[NegatedLit] that were not yet processed when we hit this conflict.
+                    // Copying the remaining watched clauses:
+                    for (int i = dist - 1; i >= 0; i--) {
+                        new_watch_list[new_watch_list_idx--] = watches[NegatedLit][i];
+                    }
                     break;
                 }
             }
@@ -204,7 +207,6 @@ bool SolverState::all_assigned() {
 void SolverState::validate_assignment() {
     check_all_variables_assigned();
     check_all_clauses_assigned();
-
 }
 
 void SolverState::check_all_variables_assigned() {
@@ -216,15 +218,11 @@ void SolverState::check_all_variables_assigned() {
 
 void SolverState::check_all_clauses_assigned() {
     //In all clauses, there is atleast one lit that's true
+    int error = 0;
     for (auto &clause : cnf) {
-        bool found = false;
-        for (auto &lit : clause.literals) {
-            if (lit_state(lit) == LitState::L_SAT) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        error++;
+        bool found = !is_clause_sat(clause) or !all_lits_assigned(clause);
+        if (found) {
             throw std::runtime_error("Failed - No assigned lit in clause");
         }
     }
@@ -236,11 +234,22 @@ void SolverState::check_all_clauses_assigned() {
     }
 }
 
-inline LitState SolverState::lit_state(Lit &l) {
+bool SolverState::is_clause_sat(Clause &clause) {
+    bool found = false;
+    for (auto &lit : clause.literals) {
+        if (lit_state(lit) == LitState::L_SAT) {
+            found = true;
+            break;
+        }
+    }
+    return found;
+}
+
+LitState SolverState::lit_state(Lit &l) {
     /*
      * This function returns if the literal was satisfied, unsatisfied or unassigned
      */
-    VarState vs = var_state[l2v(l)];
+    VarState vs = var_state.at(l2v(l));
     if (vs == VarState::V_UNASSIGNED) return LitState::L_UNASSIGNED; //If it's unassigned
 
     //If the variable was false, and the literal is negated, then it's value is true. Similarly for true.
@@ -403,5 +412,16 @@ void SolverState::before_bcp() {
 
 void SolverState::after_bcp() {
     for (const auto &cb : cbs) cb->after_bcp();
+}
+
+bool SolverState::all_lits_assigned(Clause &clause) {
+    bool all_assigned = true;
+    for (auto &lit : clause.literals) {
+        if (var_state[l2v(lit)] == VarState::V_UNASSIGNED) {
+            all_assigned = false;
+            break;
+        }
+    }
+    return all_assigned;
 }
 

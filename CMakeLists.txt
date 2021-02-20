@@ -2,13 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(edusat)
 
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
-#set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
-#set(CMAKE_BUILD_TYPE DEBUG)
-
-include_directories(.)
-
-add_executable(edusat
+set(myprogSRCS
         src/main.cpp
         src/heuristics/var.cpp
         src/heuristics/val.cpp
@@ -20,4 +14,13 @@ add_executable(edusat
         src/solver/solver_state.cpp
         src/callbacks/PrintStateCallback.h
         src/solver/clause.cpp
-        src/callbacks/HandleUnaryClausesCallback.h src/callbacks/RunStatisticsCallback.h)
+        src/callbacks/RunStatisticsCallback.h
+        )
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+#set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
+#set(CMAKE_BUILD_TYPE DEBUG)
+
+include_directories(.)
+
+add_executable(edusat_exe ${myprogSRCS})
+add_library(edusat_lib ${myprogSRCS})

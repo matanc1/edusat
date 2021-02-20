@@ -108,6 +108,10 @@ public:
     void after_bcp();
 
     int max_dl;
+
+    bool is_clause_sat(Clause &clause);
+
+    bool all_lits_assigned(Clause &clause);
 };
 
 

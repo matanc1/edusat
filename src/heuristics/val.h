@@ -20,7 +20,6 @@ private:
 public:
     Lit choose(Var v) override;
 
-    void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) override;
     void before_add_clause(std::vector<Lit> &lits) override;
     void after_initialize_state() override;
 };
