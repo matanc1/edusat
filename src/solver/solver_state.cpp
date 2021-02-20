@@ -4,6 +4,7 @@
 
 #include "solver_state.h"
 #include "src/utils/utils.h"
+#include "SatSolverException.h"
 #include <string>
 #include <fstream>
 #include <cassert>
@@ -141,7 +142,7 @@ SolverStatus SolverState::_BCP() {
                     break;
                 }
                 case ClauseState::C_UNSAT: { // conflict
-                    if (dl == 0) return SolverStatus::UNSAT;
+                    if (dl == 0) throw UnsatException("Found conflict at level dl=0");
                     conflicting_clause_idx = *clause_idx_it;
                     int dist = distance(clause_idx_it, watches[NegatedLit].rend()) - 1; // # of entries in watches[NegatedLit] that were not yet processed when we hit this conflict.
                     // Copying the remaining watched clauses:
@@ -225,9 +226,7 @@ void SolverState::check_all_variables_assigned() {
 
 void SolverState::check_all_clauses_assigned() {
     //In all clauses, there is atleast one lit that's true
-    int error = 0;
     for (auto &clause : cnf) {
-        error++;
         bool found = !is_clause_sat(clause) or !all_lits_assigned(clause);
         if (found) {
             throw std::runtime_error("Failed - No assigned lit in clause");
@@ -381,7 +380,7 @@ void SolverState::after_learn_clause(std::vector<Lit> &learned) {
 void SolverState::_add_unary_clause(std::vector<int> &literals) {
     Lit l = literals.at(0);
     if ((Neg(l) == false) and (var_state.at(l2v(l)) == VarState::V_FALSE) and (dl == 0))
-        throw std::runtime_error("UNSAT - Conflicting unaries for " + std::to_string(l2v(l)));
+        throw UnsatException("Conflicting unaries for " + std::to_string(l2v(l)));
 
     unaries.push_back(l);
     if (var_state.at(l2v(l)) == VarState::V_UNASSIGNED) {

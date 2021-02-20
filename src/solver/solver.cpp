@@ -7,6 +7,7 @@
 #include <src/utils/utils.h>
 #include <memory>
 #include "solver.h"
+#include "SatSolverException.h"
 
 
 Solver::Solver(std::string filename, std::shared_ptr<VarDecisionHeuristic> var,
@@ -34,31 +35,35 @@ void Solver::read_cnf() {
 
 void Solver::solve() {
     std::map<std::string, std::string> output;
+    output["status"] = "SAT";
     output["filename"] = filename;
-    auto result = _solve();
-    output["status"] = result == SolverStatus::SAT ? "SAT" : "UNSAT";
-    std::cout << output["status"] << std::endl;
-    if (result == SolverStatus::SAT) {
+    try {
+        read_cnf();
+        _solve();
+        std::cout << "SAT" << std::endl;
         state->validate_assignment();
         state->write_assignment("output.txt");
+    }
+    catch(SatSolverException &e) {
+        e.add_output(output);
+        std::cout << e.what() << std::endl;
     }
     state->add_output(output);
     write_output("statistics.txt", output);
 }
 
-SolverStatus Solver::_solve() {
+void Solver::_solve() {
     SolverStatus res;
     while (true) {
         while (true) {
             res = state->BCP();
-            if (res == SolverStatus::UNSAT) return res;
             if (res == SolverStatus::CONFLICT) {
                 auto dl_to_backtrack = state->analyze();
                 state->backtrack(dl_to_backtrack);
             } else break;
         }
         res = decide();
-        if (res == SolverStatus::SAT) return res;
+        if (res == SolverStatus::SAT) return;
     }
 }
 
@@ -79,4 +84,5 @@ void Solver::write_output(std::string file_name, std::map<std::string, std::stri
     }
     out.close();
 }
+
 

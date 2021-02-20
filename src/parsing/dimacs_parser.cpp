@@ -10,6 +10,7 @@
 #include <vector>
 #include <tuple>
 #include <set>
+#include <src/solver/SatSolverException.h>
 
 using namespace std;
 
@@ -42,7 +43,7 @@ vector<int> create_clause(std::string str) {
 
     while (ss >> t) {
         if (t != 0) terms.insert(t);
-        else if (terms.size() == 0) throw std::invalid_argument("A clause can't be empty.");
+        else if (terms.size() == 0) throw SatSolverException("A clause can't be empty.");
     }
 
     return vector(terms.begin(), terms.end());

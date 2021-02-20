@@ -9,6 +9,7 @@
 #include <cassert>
 #include "src/utils/utils.h"
 #include <sstream>
+#include <src/solver/SatSolverException.h>
 #include "CallbackBase.h"
 
 class TimeoutCallback : public CallbackBase {
@@ -25,7 +26,7 @@ public:
         oss << "Timeout of **" << seconds << "** seconds exceeded";
 
         if (cpuTime() - start_time > seconds) {
-            throw std::runtime_error(oss.str());
+            throw SatSolverException(oss.str());
         }
     }
 

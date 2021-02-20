@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
     };
 
     Solver s(argv[argc - 1], var, val, cbs);
-    s.read_cnf();
     s.solve();
 }
 

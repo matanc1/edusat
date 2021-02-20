@@ -21,7 +21,7 @@ private:
     std::shared_ptr<SolverState> state;
     std::string filename;
 
-    SolverStatus _solve();
+    void _solve();
 
 public:
     Solver(std::string filename, std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val,

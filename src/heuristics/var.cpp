@@ -17,6 +17,7 @@ Var MiniSAT::choose() {
             }
         }
     }
+/*
     int sum = 0;
     std::set<Var> s;
     for (auto &[score, vars] : score2vars) {
@@ -25,6 +26,7 @@ Var MiniSAT::choose() {
         sum += vars.size();
     }
     std::cout << *(s.rbegin()) << " " << *(s.begin()) << std::endl;
+*/
     throw std::runtime_error("ERROR - should've found an unassigned variable");
 }
 
