@@ -33,7 +33,7 @@ public:
 
     SolverStatus decide();
 
-    void write_output(std::map<std::string, std::string> &map);
+    void write_output(std::string file_name, std::map<std::string, std::string> &map);
 };
 
 #endif //EDUSAT_SOLVER_H

@@ -3,13 +3,14 @@
 //
 
 #include "src/parsing/dimacs_parser.h"
-#include <iostream>
+#include <fstream>
 #include <src/utils/utils.h>
 #include <memory>
 #include "solver.h"
 
 
-Solver::Solver(std::string filename, std::shared_ptr<VarDecisionHeuristic> var, std::shared_ptr<ValDecisionHeuristic> val,
+Solver::Solver(std::string filename, std::shared_ptr<VarDecisionHeuristic> var,
+               std::shared_ptr<ValDecisionHeuristic> val,
                Callbacks cbs) :
         filename(filename), var{var}, val{val}, state{std::make_shared<SolverState>(cbs)} {
     state->add_cb(var);
@@ -36,12 +37,13 @@ void Solver::solve() {
     output["filename"] = filename;
     auto result = _solve();
     output["status"] = result == SolverStatus::SAT ? "SAT" : "UNSAT";
+    std::cout << output["status"] << std::endl;
     if (result == SolverStatus::SAT) {
         state->validate_assignment();
         state->write_assignment("output.txt");
     }
     state->add_output(output);
-    write_output(output);
+    write_output("statistics.txt", output);
 }
 
 SolverStatus Solver::_solve() {
@@ -69,10 +71,10 @@ SolverStatus Solver::decide() {
     return SolverStatus::UNDEF;
 }
 
-void Solver::write_output(std::map<std::string, std::string> &outputs) {
+void Solver::write_output(std::string file_name, std::map<std::string, std::string> &outputs) {
     std::ofstream out;
-    out.open("statistics.txt");
-    for (auto &[key, value] : outputs ) {
+    out.open(file_name);
+    for (auto &[key, value] : outputs) {
         out << key << ":" << value << std::endl;
     }
     out.close();

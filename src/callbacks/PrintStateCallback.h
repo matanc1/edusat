@@ -10,11 +10,8 @@
 #include <iostream>
 
 class PrintStateCallback : public CallbackBase {
-    bool print_assignment;
 
 public:
-    explicit PrintStateCallback(bool print_assignment = false) : print_assignment(print_assignment) {}
-
     void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) override {
         std::cout << "PROBLEM DEFINITION" << std::endl << "____________________" << std::endl;
         std::cout << "nvars: " << state->nvars << " nclauses: " << state->nclauses << std::endl;

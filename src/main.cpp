@@ -14,20 +14,19 @@ int main(int argc, char **argv) {
     std::shared_ptr<ValDecisionHeuristic> val = std::make_shared<LitScore>();
 
 
-    std::shared_ptr<TimeoutCallback> timeout_callback = std::make_shared<TimeoutCallback>(1200);
-    std::shared_ptr<PrintStateCallback> print_state_callback = std::make_shared<PrintStateCallback>(true);
+    std::shared_ptr<TimeoutCallback> timeout_callback = std::make_shared<TimeoutCallback>(10);
+    std::shared_ptr<PrintStateCallback> print_state_callback = std::make_shared<PrintStateCallback>();
     std::shared_ptr<RunStatisticsCallback> run_statistics_callback =
             std::make_shared<RunStatisticsCallback>();
 
     Callbacks cbs = {
             timeout_callback,
-            print_state_callback,
+//            print_state_callback,
             run_statistics_callback,
     };
 
     Solver s(argv[argc - 1], var, val, cbs);
     s.read_cnf();
     s.solve();
-    std::cout << "SAT" << std::endl;
 }
 

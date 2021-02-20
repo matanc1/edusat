@@ -58,6 +58,13 @@ void SolverState::initialize_clauses(std::vector<std::vector<Lit>> clauses) {
     for (auto &c: clauses) {
         add_clause(c, 0, static_cast<int>(c.size()) - 1);
     }
+
+    // In case a variable isn't actually used anywhere, add it as an unary clause so it'll get assigned
+    for (Var v = 1; v<=nvars; v++){
+        if (watches[v2l(v)].size()==0 and watches[negate(v2l(v))].size()==0) {
+            add_clause(std::vector<Lit>{static_cast<int>(v2l(v))}, 0, 0);
+        }
+    }
 }
 
 SolverState::SolverState(Callbacks cbs) : cbs(cbs) {}
@@ -174,7 +181,6 @@ void SolverState::backtrack(int k) {
 void SolverState::_backtrack(int dl_backtrack) {
     unassign_vars_in_trail_from_dl(dl_backtrack);
 
-    //if (VarDecHeuristic == VAR_DEC_HEURISTIC::MINISAT) m_should_reset_iterators = true;
     trail.erase(trail.begin() + separators[dl_backtrack + 1], trail.end());
     qhead = trail.size();
     dl = dl_backtrack;
@@ -352,7 +358,7 @@ int SolverState::analyze() {
         if (!resolve_num) continue;
         int ant = antecedent[v];
         current_clause = cnf[ant];
-        current_clause.cl().erase(find(current_clause.cl().begin(), current_clause.cl().end(), u));
+        current_clause.literals.erase(find(current_clause.literals.begin(), current_clause.literals.end(), u));
     } while (resolve_num > 0);
     for (auto &lit : new_literals)
         marked[l2v(lit)] = false;

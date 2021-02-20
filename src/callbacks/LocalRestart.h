@@ -10,22 +10,18 @@
 #include <iostream>
 
 class LocalRestart : public CallbackBase {
-/*
- * local restart means that we restart if the number of conflicts learned in this
- * decision level has passed the threshold.
- */
+
+    int num_learned = 0;
+    vector<int> conflicts_at_dl; // decision level => # of conflicts under it. Used for local restarts.
 
 public:
-    explicit LocalRestart() {}
 
-    void before_backtrack() override {
-        if (k > 0 && (num_learned - conflicts_at_dl[k] > restart_threshold)) {    // "local restart"
-            restart();
-            return;
-        }
+    void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {
+        conflicts_at_dl.push_back(0);
     }
 
-    void after_initialization() override {
+    void after_learn_clause(std::vector<Lit> &lits) override {
+        num_learned++;
     }
 };
 

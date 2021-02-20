@@ -20,7 +20,7 @@ public:
         assert(seconds > 0);
     }
 
-    void before_bcp() {
+    void before_bcp() override {
         std::ostringstream oss;
         oss << "Timeout of **" << seconds << "** seconds exceeded";
 

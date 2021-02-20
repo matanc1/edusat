@@ -5,6 +5,7 @@
 #include <cassert>
 #include <src/utils/utils.h>
 #include <iostream>
+#include <set>
 #include "var.h"
 #include "src/solver/solver.h"
 
@@ -16,11 +17,18 @@ Var MiniSAT::choose() {
             }
         }
     }
+    int sum = 0;
+    std::set<Var> s;
+    for (auto &[score, vars] : score2vars) {
+        s.insert(vars.begin(), vars.end());
+        std::cout << score << ":" << vars.size() << std::endl;
+        sum += vars.size();
+    }
+    std::cout << *(s.rbegin()) << " " << *(s.begin()) << std::endl;
     throw std::runtime_error("ERROR - should've found an unassigned variable");
 }
 
 void MiniSAT::before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {
-//    for(auto i=1; i<=state->nvars; i++) score2vars[0].insert(i);
     activity.resize(state->nvars + 1);
 }
 

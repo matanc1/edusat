@@ -25,29 +25,13 @@ public:
         rw = 1;
     }
 
-    void insert(int i) { literals.push_back(i); }
-
-    void lw_set(int i) { lw = i; /*assert(lw != rw);*/}
-
-    void rw_set(int i) { rw = i; /*assert(lw != rw);*/}
-
-    Literals &cl() { return literals; }
-
-    int get_lw() { return lw; }
-
-    int get_rw() { return rw; }
-
     int get_lw_lit() { return literals[lw]; }
 
     int get_rw_lit() { return literals[rw]; }
 
     int lit(int i) { return literals[i]; }
 
-    inline ClauseState next_not_false(bool is_left_watch, Lit other_watch, bool binary, int &loc);
-
     size_t size() { return literals.size(); }
-
-    void reset() { literals.clear(); }
 
     void switch_watches(bool is_left_watch, int loc);
 };
