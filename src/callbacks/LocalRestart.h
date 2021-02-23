@@ -17,7 +17,7 @@ class LocalRestart : public CallbackBase {
     int threshold = 100;
     float restart_multiplier = 1.1f;
     int upper_limit = 1000;
-    int lower_limit = 1000;
+    int lower_limit = 100;
     int num_restarts = 0;
 
 public:

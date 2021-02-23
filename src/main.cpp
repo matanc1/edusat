@@ -9,13 +9,14 @@
 #include <src/callbacks/RunStatisticsCallback.h>
 #include <src/callbacks/LocalRestart.h>
 #include <src/callbacks/PrintStateCallback.h>
+#include <src/heuristics/LR.h>
 
 int main(int argc, char **argv) {
     std::shared_ptr<VarDecisionHeuristic> var = std::make_shared<MiniSAT>();
     std::shared_ptr<ValDecisionHeuristic> val = std::make_shared<LitScore>();
+    std::shared_ptr<VarDecisionHeuristic> lr = std::make_shared<LR>(0.95);
 
-
-    std::shared_ptr<TimeoutCallback> timeout_callback = std::make_shared<TimeoutCallback>(120);
+    std::shared_ptr<TimeoutCallback> timeout_callback = std::make_shared<TimeoutCallback>(1200);
     std::shared_ptr<LocalRestart> local_restart = std::make_shared<LocalRestart>();
     std::shared_ptr<PrintStateCallback> print_state_callback = std::make_shared<PrintStateCallback>();
     std::shared_ptr<RunStatisticsCallback> run_statistics_callback =

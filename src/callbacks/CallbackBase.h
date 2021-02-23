@@ -36,7 +36,6 @@ public:
     virtual void after_initialize_clauses() {}
 
     virtual void before_assignment(Lit &l) {}
-
     virtual void after_assignment(Lit &l) {}
 
     virtual void before_backtrack(int k) {}
@@ -50,6 +49,9 @@ public:
     virtual void before_decide(Lit &l) {}
     virtual void after_decide(Lit &l) {}
     virtual void add_output(std::map<std::string, std::string> &output) {}
+
+    virtual void before_unassign_var(Var &v) {}
+    virtual void after_unassign_var(Var &v) {}
 
     void set_state(std::shared_ptr<SolverState> state) {
         this->state = state;

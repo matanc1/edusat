@@ -59,8 +59,8 @@ void SolverState::initialize_clauses(std::vector<std::vector<Lit>> clauses) {
     }
 
     // In case a variable isn't actually used anywhere, add it as an unary clause so it'll get assigned
-    for (Var v = 1; v<=nvars; v++){
-        if (watches[v2l(v)].size()==0 and watches[negate(v2l(v))].size()==0) {
+    for (Var v = 1; v <= nvars; v++) {
+        if (watches[v2l(v)].size() == 0 and watches[negate(v2l(v))].size() == 0) {
             add_clause(std::vector<Lit>{static_cast<int>(v2l(v))}, 0, 0);
         }
     }
@@ -75,7 +75,13 @@ void SolverState::assign_literal(Lit l) {
 }
 
 
-void SolverState::unassign_var(Var v){
+void SolverState::unassign_var(Var v) {
+    before_unassign_var(v);
+    _unassign_var(v);
+    after_unassign_var(v);
+}
+
+void SolverState::_unassign_var(Var v) {
     var_state[v] = VarState::V_UNASSIGNED;
     num_assigned--;
     dlevel[v] = 0;
@@ -119,7 +125,7 @@ SolverStatus SolverState::_BCP() {
                                  1; // Since we are traversing the watch_list backwards, this index goes down.
         new_watch_list.resize(watches[NegatedLit].size());
         for (auto clause_idx_it = watches[NegatedLit].rbegin();
-            clause_idx_it != watches[NegatedLit].rend() && conflicting_clause_idx < 0; ++clause_idx_it) {
+             clause_idx_it != watches[NegatedLit].rend() && conflicting_clause_idx < 0; ++clause_idx_it) {
             Clause &c = cnf[*clause_idx_it];
             Lit l_watch = c.get_lw_lit(),
                     r_watch = c.get_rw_lit();
@@ -149,7 +155,8 @@ SolverStatus SolverState::_BCP() {
                 case ClauseState::C_UNSAT: { // conflict
                     if (dl == 0) throw UnsatException("Found conflict at level dl=0");
                     conflicting_clause_idx = *clause_idx_it;
-                    int dist = distance(clause_idx_it, watches[NegatedLit].rend()) - 1; // # of entries in watches[NegatedLit] that were not yet processed when we hit this conflict.
+                    int dist = distance(clause_idx_it, watches[NegatedLit].rend()) -
+                               1; // # of entries in watches[NegatedLit] that were not yet processed when we hit this conflict.
                     // Copying the remaining watched clauses:
                     for (int i = dist - 1; i >= 0; i--) {
                         new_watch_list[new_watch_list_idx--] = watches[NegatedLit][i];
@@ -184,7 +191,7 @@ void SolverState::backtrack(int k) {
         before_backtrack(k);
         _backtrack(k);
     }
-    catch(SkipException &se){
+    catch (SkipException &se) {
         return;
     }
 }
@@ -196,11 +203,7 @@ void SolverState::_backtrack(int dl_backtrack) {
     qhead = trail.size();
     dl = dl_backtrack;
 
-    /*
-     * This part assigns the value of the "conflicting literal" (found in the analyze section).
-     * to it's negated value, and sets it's value to .... TODO: WHY?
-     * Should maybe take out into callback
-    */
+    // This part assigns the value of the "conflicting literal" (found in the analyze section).
     assign_literal(assigned_lit);
     antecedent[l2v(assigned_lit)] = cnf.size() - 1;
     conflicting_clause_idx = -1;
@@ -213,7 +216,6 @@ void SolverState::unassign_vars_in_trail_from_dl(int dl_to_backtrack) {
 
         // we need the condition because of learnt unary clauses. In that case we enforce an assignment with dlevel = 0.
         unassign_var(v);
-        //if (VarDecHeuristic == VAR_DEC_HEURISTIC::MINISAT) m_curr_activity = max(m_curr_activity, m_activity[v]);
     }
 }
 
@@ -320,8 +322,7 @@ void SolverState::decide(Lit l) {
     if (dl > max_dl) {
         max_dl = dl;
         separators.push_back(trail.size());
-    }
-    else separators[dl] = trail.size();
+    } else separators[dl] = trail.size();
     assign_literal(l);
     after_decide(l);
 }
@@ -338,11 +339,17 @@ int SolverState::analyze() {
     Var v;
     do {
         //NEW CLAUSE ALL LITERALS FROM CURRENT LEVEL
-        for (auto &lit : current_clause.literals) {
+        for (auto &lit : current_clause.literals) { //iterate over all the literals
             v = l2v(lit);
-            if (!marked[v]) {
+            if (!marked[v]) { //mark all the literals that are in the clause (resolution candidates)
                 marked[v] = true;
-                if (dlevel[v] == dl) ++resolve_num;
+                if (dlevel[v] == dl)
+                    /*
+                     * If the dlevel of v is as current, increase resolve_num.
+                     * This is the #of resolutions we need to do (remove all the vars
+                     * from current DL except one which'll become unitary).
+                     */
+                    ++resolve_num;
                 else { // literals from previous decision levels (roots) are entered to the learned clause.
                     new_literals.push_back(lit);
                     int c_dl = dlevel[v];
@@ -442,7 +449,7 @@ bool SolverState::all_lits_assigned(Clause &clause) {
     return all_assigned;
 }
 
-void SolverState::add_output(std::map<std::string, std::string> &output){
+void SolverState::add_output(std::map<std::string, std::string> &output) {
     for (const auto &cb : cbs) cb->add_output(output);
 }
 
@@ -451,5 +458,13 @@ void SolverState::reset() {
     max_dl = 0;
     conflicting_clause_idx = -1;
     separators.push_back(0); // we want separators[1] to match dl=1. separators[0] is not used.
+}
+
+void SolverState::before_unassign_var(Var v) {
+    for (const auto &cb : cbs) cb->before_unassign_var(v);
+}
+
+void SolverState::after_unassign_var(Var v) {
+    for (const auto &cb : cbs) cb->after_unassign_var(v);
 }
 

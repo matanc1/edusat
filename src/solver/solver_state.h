@@ -30,6 +30,8 @@ class SolverState {
     void before_backtrack(int k);
     void before_learn_clause(std::vector<Lit> &learned);
     void after_learn_clause(std::vector<Lit> &learned);
+    void before_unassign_var(Var v);
+    void after_unassign_var(Var v);
 
     /* DPLL helpers */
     void _backtrack(int k);
@@ -118,6 +120,9 @@ public:
     void reset();
 
     void unassign_var(Var v);
+
+    void _unassign_var(Var v);
+
 };
 
 

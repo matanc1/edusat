@@ -4,6 +4,8 @@
 
 
 
+#ifndef EDUSAT_UTILS_H
+#define EDUSAT_UTILS_H
 
 #include <ctime>
 #include "definitions.h"
@@ -31,3 +33,5 @@ inline Lit negate(Lit l) {
 inline int l2rl(int l) { // the var name + negation sign
     return Neg(l) ? -((l + 1) / 2) : l / 2;
 }
+
+#endif //EDUSAT_UTILS_H

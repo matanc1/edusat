@@ -37,6 +37,7 @@ void Solver::solve() {
     std::map<std::string, std::string> output;
     output["status"] = "SAT";
     output["filename"] = filename;
+    output["solver"] = "new_solver";
     try {
         read_cnf();
         _solve();

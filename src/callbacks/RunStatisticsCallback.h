@@ -15,22 +15,13 @@ public:
     int num_learned = 0;
     int num_decisions = 0;
 
-    void after_assignment(Lit &l) override {
-        num_assignments++;
-    }
+    void after_assignment(Lit &l) override { num_assignments++; }
 
-    void after_decide(Lit &l) override {
-        num_decisions++;
-    }
+    void after_decide(Lit &l) override { num_decisions++; }
 
-    void before_backtrack(int k) override {
-        num_backtracks++;
-    }
+    void before_backtrack(int k) override { num_backtracks++; }
 
-    void after_learn_clause(std::vector<Lit> &lits) override {
-        num_learned++;
-    }
-
+    void after_learn_clause(std::vector<Lit> &lits) override { num_learned++; }
 
     void add_output(std::map<std::string, std::string> &output) override {
         output["num_learned"] = std::to_string(num_learned);

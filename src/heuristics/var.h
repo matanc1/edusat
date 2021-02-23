@@ -37,5 +37,9 @@ public:
     void after_learn_clause(std::vector<Lit> &lits) override;
 
     void update_var_score(Var &v);
+
+    void add_output(std::map<std::string, std::string> &output){
+        output["vdh"] = "MiniSAT";
+    }
 };
 #endif //EDUSAT_VAR_H
