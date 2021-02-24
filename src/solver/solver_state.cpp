@@ -327,63 +327,6 @@ void SolverState::decide(Lit l) {
     after_decide(l);
 }
 
-int SolverState::analyze() {
-    Clause current_clause = cnf[conflicting_clause_idx];
-    Literals new_literals;
-
-    int resolve_num = 0,
-            bktrk = 0,
-            watch_lit = 0; // points to what literal in the learnt clause should be watched, other than the asserting one
-
-    Lit u;
-    Var v;
-    do {
-        //NEW CLAUSE ALL LITERALS FROM CURRENT LEVEL
-        for (auto &lit : current_clause.literals) { //iterate over all the literals
-            v = l2v(lit);
-            if (!marked[v]) { //mark all the literals that are in the clause (resolution candidates)
-                marked[v] = true;
-                if (dlevel[v] == dl)
-                    /*
-                     * If the dlevel of v is as current, increase resolve_num.
-                     * This is the #of resolutions we need to do (remove all the vars
-                     * from current DL except one which'll become unitary).
-                     */
-                    ++resolve_num;
-                else { // literals from previous decision levels (roots) are entered to the learned clause.
-                    new_literals.push_back(lit);
-                    int c_dl = dlevel[v];
-                    if (c_dl > bktrk) {
-                        bktrk = c_dl;
-                        watch_lit = new_literals.size() - 1;
-                    }
-                }
-            }
-        }
-        auto t_it = trail.rbegin();
-        // LOOKS FOR FIRST MARKED CLAUSE
-        while (t_it != trail.rend()) {
-            u = *t_it;
-            v = l2v(u);
-            ++t_it;
-            if (marked[v]) break;
-        }
-        marked[v] = false;
-        --resolve_num;
-        if (!resolve_num) continue;
-        int ant = antecedent[v];
-        current_clause = cnf[ant];
-        current_clause.literals.erase(find(current_clause.literals.begin(), current_clause.literals.end(), u));
-    } while (resolve_num > 0);
-    for (auto &lit : new_literals)
-        marked[l2v(lit)] = false;
-    Lit Negated_u = negate(u);
-    new_literals.push_back(Negated_u);
-    assigned_lit = Negated_u;
-    add_learned_clause(new_literals, watch_lit, new_literals.size() - 1);
-
-    return bktrk;
-}
 
 void SolverState::before_learn_clause(std::vector<Lit> &learned) {
     for (const auto &cb : cbs) cb->before_learn_clause(learned);
@@ -467,4 +410,8 @@ void SolverState::before_unassign_var(Var v) {
 void SolverState::after_unassign_var(Var v) {
     for (const auto &cb : cbs) cb->after_unassign_var(v);
 }
+
+
+
+
 

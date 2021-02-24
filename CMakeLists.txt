@@ -18,7 +18,10 @@ set(myprogSRCS
         src/callbacks/RunStatisticsCallback.h
         src/callbacks/LocalRestart.h
         src/solver/exceptions.h
-        src/heuristics/LR.cpp src/heuristics/LR.h)
+        src/heuristics/LR.h
+        src/solver/solver_state_analyzer.cpp
+
+        )
 
 #set(CMAKE_SYSTEM_NAME Windows)
 #set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)

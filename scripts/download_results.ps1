@@ -1,4 +1,4 @@
-﻿$studentid="matan-new-lr-downloaded"
+﻿$studentid="matan-lr-download"
 
 $DestinationBasePath="c:\trial\results"
 $Destination="$($DestinationBasePath)\$($studentid)"

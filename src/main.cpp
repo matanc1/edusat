@@ -12,9 +12,9 @@
 #include <src/heuristics/LR.h>
 
 int main(int argc, char **argv) {
-    std::shared_ptr<VarDecisionHeuristic> var = std::make_shared<MiniSAT>();
+    std::shared_ptr<VarDecisionHeuristic> var = std::make_shared<LR>(0.4);
+//    std::shared_ptr<VarDecisionHeuristic> var = std::make_shared<MiniSAT>();
     std::shared_ptr<ValDecisionHeuristic> val = std::make_shared<LitScore>();
-    std::shared_ptr<VarDecisionHeuristic> lr = std::make_shared<LR>(0.95);
 
     std::shared_ptr<TimeoutCallback> timeout_callback = std::make_shared<TimeoutCallback>(1200);
     std::shared_ptr<LocalRestart> local_restart = std::make_shared<LocalRestart>();

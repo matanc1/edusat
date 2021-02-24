@@ -123,6 +123,13 @@ public:
 
     void _unassign_var(Var v);
 
+    Lit last_assigned_literal();
+
+    Clause next_conflict_candidates(Lit u, int ant);
+
+    void on_resolve(Literals &vector);
+
+    void after_analyze(Literals &vector);
 };
 
 

@@ -32,6 +32,8 @@ public:
     virtual void before_initialize_state() {}
     virtual void after_initialize_state() {}
 
+    virtual void on_resolve(Literals &literals) {}
+
     virtual void before_initialize_clauses(std::vector<std::vector<Lit>> &clauses) {}
     virtual void after_initialize_clauses() {}
 
