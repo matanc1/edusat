@@ -23,10 +23,10 @@ set(myprogSRCS
 
         )
 
-#set(CMAKE_SYSTEM_NAME Windows)
-#set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
-#set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+set(CMAKE_SYSTEM_NAME Windows)
+set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 include_directories(.)
 
